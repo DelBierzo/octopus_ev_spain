@@ -14,7 +14,7 @@ CONF_PASSWORD: Final = "password"
 
 # Default values
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=5)
-DEFAULT_NAME = "Octopus Energy EV España"
+DEFAULT_NAME = "Octopus Energy España"
 
 # API constants
 GRAPH_QL_ENDPOINT = "https://api.oees-kraken.energy/v1/graphql/"
