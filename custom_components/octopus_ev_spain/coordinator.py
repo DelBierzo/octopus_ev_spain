@@ -1,8 +1,10 @@
 """Data update coordinator for Octopus Energy Spain - FIXED following original pattern."""
 from __future__ import annotations
 
+from zoneinfo import ZoneInfo
 import asyncio
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta, time, timezone
+
 import logging
 from typing import Any
 
@@ -388,7 +390,9 @@ class OctopusSpainDataUpdateCoordinator(DataUpdateCoordinator):
 
     def _generate_hourly_prices_from_tariff(self, prices_data: dict) -> dict:
         """Generate hourly pricing data from Spanish tariff structure."""
-        import pytz
+        from zoneinfo import ZoneInfo
+
+        ###
         
         if not prices_data or not prices_data.get("product", {}).get("prices"):
             return {"today": [], "tomorrow": []}
@@ -402,13 +406,18 @@ class OctopusSpainDataUpdateCoordinator(DataUpdateCoordinator):
         
         # Spanish tariff rates (from your specification)
         price_peak = float(variable_terms[0])      # PUNTA: 0.197
-        price_standard = float(variable_terms[1])  # LLANO: 0.122  
-        price_valley = float(variable_terms[2])    # VALLE: 0.084
+        price_standard = float(variable_terms[1])  # LLANO: 0.118  
+        price_valley = float(variable_terms[2])    # VALLE: 0.081
         
-        # Get timezone
-        tz = pytz.timezone('Europe/Madrid')
+        # Get timezone #####################################################################################
+
+        tz = ZoneInfo("Europe/Madrid")
         today = datetime.now(tz).date()
+        #tz = pytz.timezone('Europe/Madrid')
+        #today = datetime.date(datetime.now(tz))
         tomorrow = today + timedelta(days=1)
+        
+        ####################################################################################################
         
         today_prices = []
         tomorrow_prices = []
