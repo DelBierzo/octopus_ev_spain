@@ -1,8 +1,10 @@
 """Sensor platform for Octopus Energy Spain - SIMPLIFIED for new structure."""
 from __future__ import annotations
 
+from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, time, timezone
+
 import logging
-from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -165,8 +167,7 @@ class OctopusCurrentPriceEVSensor(CoordinatorEntity, SensorEntity):
 
     def _get_current_price_with_ev_discount(self) -> float | None:
         """Get current price with EV discount applied if charging is scheduled."""
-        import pytz
-        
+
         # Get charger device
         device_id = self._get_charger_device_id()
         if not device_id:
@@ -178,9 +179,13 @@ class OctopusCurrentPriceEVSensor(CoordinatorEntity, SensorEntity):
             # Not connected, return normal price
             return self._get_normal_current_price()
         
-        # Get current time
-        tz = pytz.timezone('Europe/Madrid')
+        
+        # Get timezone #####################################################################################
+
+        tz = ZoneInfo("Europe/Madrid")
         now = datetime.now(tz)
+        
+        ####################################################################################################
         
         # Check if we're currently in a scheduled charging period
         dispatches = self.coordinator.data.get("planned_dispatches", {}).get(device_id, [])
@@ -204,14 +209,13 @@ class OctopusCurrentPriceEVSensor(CoordinatorEntity, SensorEntity):
 
     def _get_normal_current_price(self) -> float | None:
         """Get normal current price (same logic as OctopusCurrentPriceSensor)."""
-        import pytz
-        
+       
         hourly_data = self.coordinator.data.get("hourly_prices", {}).get(self._account_number, {})
         if not hourly_data:
             return None
         
         # Get current time in Spanish timezone
-        tz = pytz.timezone('Europe/Madrid')
+        tz = ZoneInfo("Europe/Madrid")
         now = datetime.now(tz)
         
         # Check today's prices first
@@ -337,8 +341,7 @@ class OctopusCurrentPriceEVSensor(CoordinatorEntity, SensorEntity):
         base_tomorrow = hourly_data.get("tomorrow", [])
         
         # Apply EV discount
-        import pytz
-        tz = pytz.timezone('Europe/Madrid')
+        tz = ZoneInfo("Europe/Madrid")
         today = datetime.now(tz).date()
         tomorrow = today + timedelta(days=1)
         
@@ -403,8 +406,7 @@ class OctopusCurrentPriceEVSensor(CoordinatorEntity, SensorEntity):
                 attrs["tomorrow_ev_discount_periods"] = len(ev_periods)
         
         # Add current period info
-        import pytz
-        tz = pytz.timezone('Europe/Madrid')
+        tz = ZoneInfo("Europe/Madrid")
         now = datetime.now(tz)
         
         for price_entry in ev_today:
@@ -957,14 +959,13 @@ class OctopusCurrentPriceSensor(CoordinatorEntity, SensorEntity):
 
     def _get_current_price(self) -> float | None:
         """Get current price based on time from generated hourly data."""
-        import pytz
-        
+
         hourly_data = self.coordinator.data.get("hourly_prices", {}).get(self._account_number, {})
         if not hourly_data:
             return None
         
         # Get current time in Spanish timezone
-        tz = pytz.timezone('Europe/Madrid')
+        tz = ZoneInfo("Europe/Madrid")
         now = datetime.now(tz)
         
         # Check today's prices first
@@ -1060,9 +1061,7 @@ class OctopusCurrentPriceSensor(CoordinatorEntity, SensorEntity):
                 attrs["tomorrow_prices_count"] = len(prices_values)
         
         # Add current period info
-        import pytz
-        
-        tz = pytz.timezone('Europe/Madrid')
+        tz = ZoneInfo("Europe/Madrid")
         now = datetime.now(tz)
         
         for price_entry in today_prices:
