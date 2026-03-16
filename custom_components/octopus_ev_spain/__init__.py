@@ -58,7 +58,7 @@ SET_PREFERENCES_SCHEMA = vol.Schema({
 })
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: ConvcfigEntry) -> bool:
     """Set up Octopus Energy Spain from a config entry."""
     email = entry.data[CONF_EMAIL]
     password = entry.data[CONF_PASSWORD]
@@ -87,8 +87,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         _LOGGER,
         api,
-        update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
+        update_interval= timedelta(minutes=5), #NEW !!
+        #update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL), #OLD !!
     )
+    
     
     # Store entry_id for device registration
     coordinator.entry_id = entry.entry_id
